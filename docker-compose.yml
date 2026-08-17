@@ -1,0 +1,43 @@
+services:
+  updater:
+    build:
+      context: .
+    image: lazod-updater:1.0.0
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      BASE_CONFIG_PATH: /app/config/LAZod.yaml
+      DATA_DIR: /data
+      MIHOMO_PATH: /usr/local/bin/mihomo
+    volumes:
+      - ./LAZod.yaml:/app/config/LAZod.yaml:ro
+      - lazod-data:/data
+    ports:
+      - "127.0.0.1:8080:8080"
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777,nosuid,nodev,noexec
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=5)"
+      interval: 30s
+      timeout: 6s
+      retries: 3
+      start_period: 90s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+volumes:
+  lazod-data:

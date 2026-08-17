@@ -1,0 +1,77 @@
+mode: rule
+mixed-port: 7890
+allow-lan: false
+log-level: info
+ipv6: false
+
+proxies:
+  - name: LA
+    type: vless
+    server: 192.0.2.10
+    port: 443
+    uuid: 00000000-0000-0000-0000-000000000000
+    tls: true
+
+proxy-list: &proxy-list
+  proxies:
+    - DIRECT
+    - USA
+    - LA
+
+proxy-groups:
+  - name: Proxy
+    type: select
+    <<: *proxy-list
+  - name: USA
+    type: select
+    proxies:
+      - LA
+  - name: HKG
+    type: select
+    proxies:
+      - LA
+  - name: HKG Auto
+    type: url-test
+    proxies:
+      - LA
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+  - name: JPN
+    type: select
+    proxies:
+      - LA
+  - name: JPN Auto
+    type: url-test
+    proxies:
+      - LA
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+  - name: SGP
+    type: select
+    proxies:
+      - LA
+  - name: SGP Auto
+    type: url-test
+    proxies:
+      - LA
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+  - name: TWN
+    type: select
+    proxies:
+      - LA
+  - name: TWN Auto
+    type: url-test
+    proxies:
+      - LA
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+  - name: AI
+    type: select
+    <<: *proxy-list
+  - name: Final
+    type: select
+    <<: *proxy-list
+
+rules:
+  - MATCH,Final

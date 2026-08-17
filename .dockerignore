@@ -1,0 +1,11 @@
+.env
+.git
+.pytest_cache
+.venv
+__pycache__
+data
+deploy
+tests
+LAZod.yaml
+ZodAcc.yaml
+*.private.yaml
