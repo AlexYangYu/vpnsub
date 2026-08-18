@@ -2,8 +2,8 @@ services:
   updater:
     build:
       context: .
-    image: lazod-updater:1.0.0
-    restart: unless-stopped
+    image: vpn-updater:1.0.0
+    restart: always
     env_file:
       - .env
     environment:
@@ -12,9 +12,8 @@ services:
       MIHOMO_PATH: /usr/local/bin/mihomo
     volumes:
       - ./LAZod.yaml:/app/config/LAZod.yaml:ro
-      - lazod-data:/data
-    ports:
-      - "127.0.0.1:8080:8080"
+      - ./data:/data
+    network_mode: host
     read_only: true
     tmpfs:
       - /tmp:size=64m,mode=1777,nosuid,nodev,noexec
@@ -22,13 +21,12 @@ services:
       - ALL
     security_opt:
       - no-new-privileges:true
+      - apparmor=unconfined
     pids_limit: 128
     healthcheck:
       test:
-        - CMD
-        - python
-        - -c
-        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=5)"
+        - CMD-SHELL
+        - python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=5)"
       interval: 30s
       timeout: 6s
       retries: 3
@@ -38,6 +36,3 @@ services:
       options:
         max-size: 10m
         max-file: "3"
-
-volumes:
-  lazod-data:
