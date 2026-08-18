@@ -1,0 +1,27 @@
+[project]
+name = "lazod-updater"
+version = "1.0.0"
+description = "Securely refresh and publish a merged ZodAccess Mihomo subscription"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "apscheduler==3.11.0",
+    "fastapi==0.116.1",
+    "httpx==0.28.1",
+    "pyyaml==6.0.2",
+    "uvicorn==0.35.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==8.4.1",
+    "pytest-asyncio==1.1.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = ["."]
+testpaths = ["tests"]

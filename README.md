@@ -177,12 +177,13 @@ nc -vz <LA_PUBLIC_IP> 8080
 
 ## 6. 本地测试
 
-推荐使用 `uv` 创建隔离环境：
+项目使用 `uv` 管理 Python 版本约束、依赖与锁文件。安装锁定的运行时和开发依赖：
 
 ```bash
-uv venv .venv
-uv pip install --python .venv/bin/python -r requirements-dev.txt
-.venv/bin/python -m pytest -q
+uv sync --locked
+uv run pytest -q
 ```
+
+更新依赖声明后运行 `uv lock`，并将 `pyproject.toml` 与 `uv.lock` 一并提交。Docker 构建同样使用锁文件安装生产依赖，不包含开发依赖。
 
 测试覆盖引导解析、AN 到 VL 回退、损坏 YAML、节点过滤、动态分组、悬空引用、原子发布、版本保留、认证、响应安全头和刷新互斥。

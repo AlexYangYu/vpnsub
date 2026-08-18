@@ -20,22 +20,35 @@ RUN apt-get update \
     && gzip --decompress /tmp/mihomo.gz \
     && chmod 0755 /tmp/mihomo
 
+FROM ghcr.io/astral-sh/uv:0.9.2 AS uv
+
+FROM python:3.12.11-slim-bookworm AS dependencies
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
+
+WORKDIR /app
+
+COPY --from=uv /uv /usr/local/bin/uv
+COPY pyproject.toml uv.lock ./
+RUN uv sync --locked --no-dev
+
 FROM python:3.12.11-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_NO_CACHE_DIR=1
+    PATH="/app/.venv/bin:${PATH}"
 
 WORKDIR /app
 
-COPY --from=mihomo /tmp/mihomo /usr/local/bin/mihomo
-COPY requirements.txt /app/requirements.txt
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends ca-certificates \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip install --no-cache-dir --requirement /app/requirements.txt
+    && rm -rf /var/lib/apt/lists/*
 
+COPY --from=mihomo /tmp/mihomo /usr/local/bin/mihomo
+COPY --from=dependencies /app/.venv /app/.venv
 COPY app /app/app
 RUN mkdir --parents /app/config /data \
     && chmod 0700 /data
